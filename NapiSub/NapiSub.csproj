@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+ <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;</TargetFrameworks>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
+    <Version>1.0.2</Version>
+  </PropertyGroup>
+
+<ItemGroup> 
+<PackageReference Include="mediabrowser.server.core" Version="3.3.29" /> 
+</ItemGroup>
+
+<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Exec Command="cmd /C del /F &quot;D:\Download\EMBY\server\programdata\plugins\$(TargetFileName)&quot;&#xD;&#xA;cmd /C copy /Y &quot;$(TargetPath)&quot; &quot;D:\Download\EMBY\server\programdata\plugins\&quot;" />
+</Target>
+
+</Project>

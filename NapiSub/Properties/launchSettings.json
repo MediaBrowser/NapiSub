@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NapiSub": {
+      "commandName": "Executable",
+      "executablePath": "D:\\Download\\EMBY\\server\\system\\EmbyServer.exe"
+    }
+  }
+}
