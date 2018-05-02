@@ -32,7 +32,7 @@ namespace NapiSub.Helpers
             return stream;
         }
 
-        public static string GetStatusResult(string xml)
+        public static string GetStatusFromXml(string xml)
         {
             if (xml == null) return null;
 

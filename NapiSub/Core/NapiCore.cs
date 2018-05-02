@@ -15,7 +15,7 @@ namespace NapiSub.Core
         public static async Task<string> GetHash(string path, CancellationToken cancellationToken, IFileSystem fileSystem, ILogger logger)
         {
             var buffer = new byte[10485760];
-            logger.Info("Reading {0}", path);
+            logger.Info($"Reading {path}");
 
             using (var stream =
                 fileSystem.GetFileStream(path, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read))
@@ -29,7 +29,7 @@ namespace NapiSub.Core
                 hash = ToHex(md5.ComputeHash(buffer));
             }
 
-            logger.Info("Computed hash {0} of {1} for NapiSub", hash, path);
+            logger.Info($"Computed hash {hash} of {path} for NapiSub");
             return hash;
         }
 
@@ -67,30 +67,30 @@ namespace NapiSub.Core
 
             var opts = new HttpRequestOptions
             {
-                Url = Plugin.Instance.Configuration.NapiUrl,
-                UserAgent = Plugin.Instance.Configuration.UserAgent,
+                Url = Plugin.Instance.Configuration.GetNapiUrl,
+                UserAgent = Plugin.Instance.Configuration.GetUserAgent,
                 TimeoutMs = 10000, //10 seconds timeout
             };
 
             var dic = new Dictionary<string, string>
             {
                 {
-                    "mode", Plugin.Instance.Configuration.Mode
+                    "mode", Plugin.Instance.Configuration.GetMode
                 },
                 {
-                    "client", Plugin.Instance.Configuration.ClientName
+                    "client", Plugin.Instance.Configuration.GetClientName
                 },
                 {
-                    "client_ver", Plugin.Instance.Configuration.ClientVer
+                    "client_ver", Plugin.Instance.Configuration.GetClientVer
                 },
                 {
                     "downloaded_subtitles_id", hash
                 },
                 {
-                    "downloaded_subtitles_txt", Plugin.Instance.Configuration.SubtitlesAsText
+                    "downloaded_subtitles_txt", Plugin.Instance.Configuration.GetSubtitlesAsText
                 },
                 {
-                    "downloaded_subtitles_lang", Plugin.Instance.Configuration.SubtitlesLang
+                    "downloaded_subtitles_lang", Plugin.Instance.Configuration.GetSubtitlesLang
                 }
             };
 

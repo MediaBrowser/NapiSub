@@ -28,10 +28,10 @@ namespace NapiSub.Provider
             _httpClient = httpClient;
         }
 
-        public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
+        public async Task<SubtitleResponse> GetSubtitles(string hash, CancellationToken cancellationToken)
         {
-            var opts = NapiCore.CreateRequest(id);
-            _logger.Info("Requesting {0}", opts.Url);
+            var opts = NapiCore.CreateRequest(hash);
+            _logger.Info($"Requesting {opts.Url}");
 
             try
             {
@@ -40,7 +40,7 @@ namespace NapiSub.Provider
                     using (var reader = new StreamReader(response.Content))
                     {
                         var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
-                        var status = XmlParser.GetStatusResult(xml);
+                        var status = XmlParser.GetStatusFromXml(xml);
 
                         if (status != null && status == "success")
                         {
@@ -86,8 +86,8 @@ namespace NapiSub.Provider
                 {
                     using (var reader = new StreamReader(response.Content))
                     {
-                        var result = await reader.ReadToEndAsync().ConfigureAwait(false);
-                        var status = XmlParser.GetStatusResult(result);
+                        var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
+                        var status = XmlParser.GetStatusFromXml(xml);
 
                         if (status != null && status == "success")
                         {

@@ -31,7 +31,7 @@ namespace NapiSub.Helpers
                         foreach (var item in items)
                         {
                             writer.WriteLine(i++.ToString());   //add line counter
-                            writer.WriteLine(GetSubRipTimeLine(item.StartTime, item.EndTime));
+                            writer.WriteLine(GetSubRipTimeLine(item.StartTime, item.EndTime)); //add time line 
 
                             foreach (var line in item.Lines)
                             {
@@ -54,12 +54,10 @@ namespace NapiSub.Helpers
             var startTs = new TimeSpan(0, 0, 0, 0, startTime);
             var endTs = new TimeSpan(0, 0, 0, 0, endTime);
 
-            var start = string.Format("{0:hh\\:mm\\:ss\\,fff}", startTs);
-            const string temp = "-->";
-            var end = string.Format("{0:hh\\:mm\\:ss\\,fff}", endTs);
+            var start = $"{startTs:hh\\:mm\\:ss\\,fff}";
+            var end = $"{endTs:hh\\:mm\\:ss\\,fff}";
 
-            var subRipLine = string.Format("{0} {1} {2}", start, temp, end);
-            return subRipLine;
+            return $"{start} --> {end}";
         }
     }
 }

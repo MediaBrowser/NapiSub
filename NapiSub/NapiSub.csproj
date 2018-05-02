@@ -8,7 +8,7 @@
   </PropertyGroup>
 
 <ItemGroup> 
-<PackageReference Include="mediabrowser.server.core" Version="3.3.29" /> 
+<PackageReference Include="mediabrowser.server.core" Version="3.3.38" /> 
 </ItemGroup>
 
 <Target Name="PostBuild" AfterTargets="PostBuildEvent">
