@@ -2,17 +2,14 @@
 
  <PropertyGroup>
     <TargetFrameworks>netstandard2.0;</TargetFrameworks>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
     <FileVersion>1.0.0.3</FileVersion>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
 <ItemGroup> 
-<PackageReference Include="mediabrowser.server.core" Version="3.3.38" /> 
+<PackageReference Include="mediabrowser.server.core" Version="4.0.0.2" /> 
+<PackageReference Include="System.Memory" Version="4.5.2" /> 
 </ItemGroup>
-
-<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-  <Exec Command="cmd /C del /F &quot;D:\Download\EMBY\server\programdata\plugins\$(TargetFileName)&quot;&#xD;&#xA;cmd /C copy /Y &quot;$(TargetPath)&quot; &quot;D:\Download\EMBY\server\programdata\plugins\&quot;" />
-</Target>
 
 </Project>
