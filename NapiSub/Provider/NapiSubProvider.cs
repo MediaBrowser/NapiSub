@@ -24,11 +24,12 @@ namespace NapiSub.Provider
         private readonly IFileSystem _fileSystem;
         private ILocalizationManager _localizationManager;
 
-        public NapiSubProvider(ILogger logger, IFileSystem fileSystem, IHttpClient httpClient)
+        public NapiSubProvider(ILogger logger, IFileSystem fileSystem, IHttpClient httpClient, ILocalizationManager localizationManager)
         {
             _logger = logger;
             _fileSystem = fileSystem;
             _httpClient = httpClient;
+            _localizationManager = localizationManager;
         }
 
         public async Task<SubtitleResponse> GetSubtitles(string hash, CancellationToken cancellationToken)
