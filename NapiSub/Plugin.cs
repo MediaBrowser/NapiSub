@@ -16,7 +16,7 @@ namespace NapiSub
             Instance = this;
         }
 
-        public override Guid Id => new Guid("C657D302-D19A-40F3-A639-C5F382D43A62");
+        public override Guid Id => new Guid("6F9A84BF-CB2F-42C3-9F07-4037956F9A02");
 
         public override string Name => "NapiSub";
 
