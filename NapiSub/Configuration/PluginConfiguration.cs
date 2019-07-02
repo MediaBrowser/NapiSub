@@ -10,6 +10,5 @@ namespace NapiSub.Configuration
         public string GetClientName { get; } = "NapiProjektPython";
         public string GetClientVer { get; } = "0.1";
         public string GetSubtitlesAsText { get; } = "1"; //1 = text, 0 = zip (zip password = "iBlm8NTigvru0Jr0")
-        public string GetSubtitlesLang { get; } = "PL";
     }
 }

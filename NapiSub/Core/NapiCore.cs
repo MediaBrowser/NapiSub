@@ -17,8 +17,7 @@ namespace NapiSub.Core
             var buffer = new byte[10485760];
             logger.Info($"Reading {path}");
 
-            using (var stream =
-                fileSystem.GetFileStream(path, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read))
+            using (var stream = fileSystem.GetFileStream(path, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read))
             {
                 await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
             }
@@ -61,7 +60,7 @@ namespace NapiSub.Core
             return b;
         }
 
-        public static HttpRequestOptions CreateRequest(string hash)
+        public static HttpRequestOptions CreateRequest(string hash, string language)
         {
             if (hash == null) return null;
 
@@ -90,7 +89,7 @@ namespace NapiSub.Core
                     "downloaded_subtitles_txt", Plugin.Instance.Configuration.GetSubtitlesAsText
                 },
                 {
-                    "downloaded_subtitles_lang", Plugin.Instance.Configuration.GetSubtitlesLang
+                    "downloaded_subtitles_lang", language
                 }
             };
 

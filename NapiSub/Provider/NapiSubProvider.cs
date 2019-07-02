@@ -12,6 +12,8 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
+using MediaBrowser.Model.Globalization;
 
 namespace NapiSub.Provider
 {
@@ -20,6 +22,7 @@ namespace NapiSub.Provider
         private readonly IHttpClient _httpClient;
         private readonly ILogger _logger;
         private readonly IFileSystem _fileSystem;
+        private ILocalizationManager _localizationManager;
 
         public NapiSubProvider(ILogger logger, IFileSystem fileSystem, IHttpClient httpClient)
         {
@@ -30,7 +33,7 @@ namespace NapiSub.Provider
 
         public async Task<SubtitleResponse> GetSubtitles(string hash, CancellationToken cancellationToken)
         {
-            var opts = NapiCore.CreateRequest(hash);
+            var opts = NapiCore.CreateRequest(hash, "PL");
             _logger.Info($"Requesting {opts.Url}");
 
             try
@@ -75,10 +78,15 @@ namespace NapiSub.Provider
         public async Task<IEnumerable<RemoteSubtitleInfo>> Search(SubtitleSearchRequest request,
             CancellationToken cancellationToken)
         {
-            if (request.TwoLetterISOLanguageName != "pl") return new List<RemoteSubtitleInfo>();
+            var language = _localizationManager.FindLanguageInfo(request.Language);
+
+            if (language == null || !string.Equals(language.TwoLetterISOLanguageName, "PL", StringComparison.OrdinalIgnoreCase))
+            {
+                return Array.Empty<RemoteSubtitleInfo>();
+            }
 
             var hash = await NapiCore.GetHash(request.MediaPath, cancellationToken, _fileSystem, _logger);
-            var opts = NapiCore.CreateRequest(hash);
+            var opts = NapiCore.CreateRequest(hash, language.TwoLetterISOLanguageName);
 
             try
             {
@@ -100,7 +108,9 @@ namespace NapiSub.Provider
                                     IsHashMatch = true,
                                     ProviderName = Name,
                                     Id = hash,
-                                    Name = "A subtitle matched by hash"
+                                    Name = "A subtitle matched by hash",
+                                    ThreeLetterISOLanguageName = language.ThreeLetterISOLanguageName,
+                                    Format = "srt"
                                 }
                             };
                         }
