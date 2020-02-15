@@ -86,7 +86,7 @@ namespace NapiSub.Provider
                 return Array.Empty<RemoteSubtitleInfo>();
             }
 
-            var hash = await NapiCore.GetHash(request.MediaPath, cancellationToken, _fileSystem, _logger);
+            var hash = await NapiCore.GetHash(request.MediaPath, cancellationToken, _fileSystem, _logger).ConfigureAwait(false);
             var opts = NapiCore.CreateRequest(hash, language.TwoLetterISOLanguageName);
 
             try

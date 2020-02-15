@@ -17,9 +17,9 @@ namespace NapiSub.Core
             var buffer = new byte[10485760];
             logger.Info($"Reading {path}");
 
-            using (var stream = fileSystem.GetFileStream(path, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read))
+            using (var stream = fileSystem.GetFileStream(path, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read, true))
             {
-                await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
             }
 
             string hash;
