@@ -79,7 +79,7 @@ namespace NapiSub.Provider
         public async Task<IEnumerable<RemoteSubtitleInfo>> Search(SubtitleSearchRequest request,
             CancellationToken cancellationToken)
         {
-            var language = _localizationManager.FindLanguageInfo(request.Language);
+            var language = _localizationManager.FindLanguageInfo(request.Language.AsSpan());
 
             if (language == null || !string.Equals(language.TwoLetterISOLanguageName, "PL", StringComparison.OrdinalIgnoreCase))
             {
