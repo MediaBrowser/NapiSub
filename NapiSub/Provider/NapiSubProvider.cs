@@ -32,99 +32,88 @@ namespace NapiSub.Provider
             _localizationManager = localizationManager;
         }
 
-        public async Task<SubtitleResponse> GetSubtitles(string hash, CancellationToken cancellationToken)
+        public async Task<SubtitleResponse> GetSubtitles(string id, CancellationToken cancellationToken)
         {
-            var opts = NapiCore.CreateRequest(hash, "PL");
+            var index = id.IndexOf('_');
+            var language = id.Substring(0, index);
+            var hash = id.Substring(index + 1);
+
+            var opts = NapiCore.CreateRequest(hash, language.ToUpperInvariant());
             _logger.Info($"Requesting {opts.Url}");
 
-            try
+            using (var response = await _httpClient.Post(opts).ConfigureAwait(false))
             {
-                using (var response = await _httpClient.Post(opts).ConfigureAwait(false))
+                using (var reader = new StreamReader(response.Content))
                 {
-                    using (var reader = new StreamReader(response.Content))
+                    var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    var status = XmlParser.GetStatusFromXml(xml);
+
+                    if (string.Equals(status, "success", StringComparison.OrdinalIgnoreCase))
                     {
-                        var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
-                        var status = XmlParser.GetStatusFromXml(xml);
+                        var subtitlesBase64 = XmlParser.GetSubtitlesBase64(xml);
+                        var stream = XmlParser.GetSubtitlesStream(subtitlesBase64);
+                        var subRip = SubtitlesConverter.ConvertToSubRipStream(stream);
 
-                        if (status != null && status == "success")
+                        if (subRip != null)
                         {
-                            var subtitlesBase64 = XmlParser.GetSubtitlesBase64(xml);
-                            var stream = XmlParser.GetSubtitlesStream(subtitlesBase64);
-                            var subRip = SubtitlesConverter.ConvertToSubRipStream(stream);
-
-                            if (subRip != null)
+                            return new SubtitleResponse
                             {
-                                return new SubtitleResponse
-                                {
-                                    Format = "srt",
-                                    Language = "PL",
-                                    Stream = subRip
-                                };
-                            }
+                                Format = "srt",
+                                Language = language,
+                                Stream = subRip
+                            };
                         }
                     }
+                    else
+                    {
+                        throw new Exception("Error downloading subtitles: " + status);
+                    }
                 }
+            }
 
-                _logger.Info("No subtitles downloaded");
-                return new SubtitleResponse();
-            }
-            catch (HttpException ex)
-            {
-                if (!ex.StatusCode.HasValue || ex.StatusCode.Value != HttpStatusCode.NotFound) throw;
-                _logger.Debug("ERROR");
-                return new SubtitleResponse();
-            }
+            throw new Exception("No subtitles downloaded");
         }
 
         public async Task<IEnumerable<RemoteSubtitleInfo>> Search(SubtitleSearchRequest request,
             CancellationToken cancellationToken)
         {
-            var language = _localizationManager.FindLanguageInfo(request.Language.AsSpan());
+            var language = _localizationManager.FindLanguageInfo(request.Language.AsSpan())?.TwoLetterISOLanguageName ?? request.Language;
 
-            if (language == null || !string.Equals(language.TwoLetterISOLanguageName, "PL", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(language, "pl", StringComparison.OrdinalIgnoreCase))
             {
                 return Array.Empty<RemoteSubtitleInfo>();
             }
 
             var hash = await NapiCore.GetHash(request.MediaPath, cancellationToken, _fileSystem, _logger).ConfigureAwait(false);
-            var opts = NapiCore.CreateRequest(hash, language.TwoLetterISOLanguageName);
+            var opts = NapiCore.CreateRequest(hash, language);
 
-            try
+            using (var response = await _httpClient.Post(opts).ConfigureAwait(false))
             {
-                using (var response = await _httpClient.Post(opts).ConfigureAwait(false))
+                using (var reader = new StreamReader(response.Content))
                 {
-                    using (var reader = new StreamReader(response.Content))
+                    var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    var status = XmlParser.GetStatusFromXml(xml);
+
+                    if (string.Equals(status, "success", StringComparison.OrdinalIgnoreCase))
                     {
-                        var xml = await reader.ReadToEndAsync().ConfigureAwait(false);
-                        var status = XmlParser.GetStatusFromXml(xml);
+                        _logger.Info("Subtitles found by NapiSub");
 
-                        if (status != null && status == "success")
-                        {
-                            _logger.Info("Subtitles found by NapiSub");
-
-                            return new List<RemoteSubtitleInfo>
+                        return new List<RemoteSubtitleInfo>
                             {
                                 new RemoteSubtitleInfo
                                 {
                                     IsHashMatch = true,
                                     ProviderName = Name,
-                                    Id = hash,
+                                    Id = language + "_" + hash,
                                     Name = "A subtitle matched by hash",
-                                    ThreeLetterISOLanguageName = language.ThreeLetterISOLanguageName,
+                                    Language = language,
                                     Format = "srt"
                                 }
                             };
-                        }
                     }
-
-                    _logger.Info("No subtitles found by NapiSub");
-                    return new List<RemoteSubtitleInfo>();
                 }
-            }
-            catch (HttpException ex)
-            {
-                if (!ex.StatusCode.HasValue || ex.StatusCode.Value != HttpStatusCode.NotFound) throw;
-                _logger.Debug("ERROR");
+
+                _logger.Info("No subtitles found by NapiSub");
                 return new List<RemoteSubtitleInfo>();
             }
         }
